@@ -4,7 +4,6 @@ class UserController {
     async registration(req, res, next) {
         try {
             const { email, password } = req.body;
-            console.log('req.body', email, password)
             const userData = await userService.registration(email, password);
 
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true });

@@ -9,13 +9,11 @@ class UserService {
     async registration(email, password) {
         const candidate = await UserModel.findOne({ email });
 
-        console.log(candidate)
-
         if(candidate) {
             throw new Error('Такой пользователь уже существует!');
         }
 
-        const hashPassword = bcrypt.hash(password, 3);
+        const hashPassword = await bcrypt.hash(password, 3);
         const activationLink = uuid.v4();
 
         const user = await UserModel.create({ email, password: hashPassword, activationLink });
@@ -23,7 +21,6 @@ class UserService {
 
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
-        console.log('tokens', tokens);
 
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
