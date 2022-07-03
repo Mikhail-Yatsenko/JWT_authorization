@@ -39,7 +39,12 @@ class UserController {
 
     async logout(req, res, next) {
         try {
+            const { refreshToken } = req.cookies;
+            await userService.logout(refreshToken);
 
+            res.clearCookie('refreshToken');
+
+            return res.json({ status: 200, message: 'You have successfully logged out!' })
         } catch (e) {
             next(e);
         }
@@ -58,7 +63,13 @@ class UserController {
 
     async refreshToken(req, res, next) {
         try {
+            const { refreshToken } = req.cookies;
 
+            const userData = await userService.refresh(refreshToken);
+
+            res.cookie('refreshToken', userData.refreshToken, { maxAge: maxAgeToken, httpOnly: true });
+
+            res.json(userData);
         } catch (e) {
             next(e);
         }
@@ -66,7 +77,8 @@ class UserController {
 
     async getUsers(req, res, next) {
         try {
-            res.json(['Hello World!'])
+            const users = await userService.getAllUsers();
+            return res.json(users);
         } catch (e) {
             next(e);
         }
